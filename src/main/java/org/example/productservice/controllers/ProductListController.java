@@ -42,7 +42,7 @@ public class ProductListController {
     public ResponseEntity<ProductListDto> getList(
             @Parameter(description = "Идентификатор списка (id)")
             @PathVariable Long id
-    ) throws NotFoundException {
+    ) {
         return ResponseEntity.ok(listService.getList(id));
     }
 
@@ -55,7 +55,7 @@ public class ProductListController {
     @PostMapping()
     public ResponseEntity<ProductListDto> addList(
             @RequestBody ProductListDto request
-    ) throws BadRequestException {
+    ) {
         return ResponseEntity.ok(listService.addList(request));
     }
 
@@ -69,7 +69,7 @@ public class ProductListController {
     @PutMapping()
     public ResponseEntity<ProductListDto> updateList(
             @RequestBody ProductListDto request
-    ) throws BadRequestException, NotFoundException {
+    ) {
         return ResponseEntity.ok(listService.updateList(request));
     }
 
@@ -82,7 +82,7 @@ public class ProductListController {
     @DeleteMapping("/{id}")
     public ResponseEntity<DeleteResponse> deleteList(
             @PathVariable Long id
-    ) throws NotFoundException, BadRequestException {
+    ) {
         return ResponseEntity.ok(listService.deleteList(id));
     }
 

@@ -43,7 +43,7 @@ public class ProductListService {
     @Value("${limit.list.name.length}")
     private int nameLengthLimit;
 
-    public ProductListDto getList(Long listId) throws NotFoundException {
+    public ProductListDto getList(Long listId) {
         ProductList productList = getActiveById(listId);
         Set<Product> productSet = productList.getProducts();
         ProductListDto result = new ProductListDto(productList);
@@ -59,7 +59,7 @@ public class ProductListService {
         return result;
     }
 
-    public ProductListDto addList(ProductListDto request) throws BadRequestException {
+    public ProductListDto addList(ProductListDto request) {
         if (request.getName() == null || request.getName().isBlank())
             throw new BadRequestException("Не указано имя списка");
         ProductList productList = create(request);
@@ -67,7 +67,7 @@ public class ProductListService {
         return new ProductListDto(productList);
     }
 
-    public ProductListDto updateList(ProductListDto request) throws BadRequestException, NotFoundException {
+    public ProductListDto updateList(ProductListDto request) {
         if (request.getId() == 0) throw new BadRequestException("Не указан id списка");
         ProductList productList = getActiveById(request.getId());
         update(productList, request);
@@ -75,7 +75,7 @@ public class ProductListService {
         return new ProductListDto(productList);
     }
 
-    public DeleteResponse deleteList(Long listId) throws NotFoundException, BadRequestException {
+    public DeleteResponse deleteList(Long listId) {
         ProductList productList = getById(listId);
         if (productList.getStatus() == REMOVED)
             throw new BadRequestException(String.format("Список продуктов id=%d уже удален", listId));
@@ -105,7 +105,7 @@ public class ProductListService {
         return PageableResponse.create(total, pair.getPage(), pair.getSize(), list);
     }
 
-    public AppResponse addProduct(Long listId, Long productId) throws NotFoundException, BadRequestException {
+    public AppResponse addProduct(Long listId, Long productId) {
         ProductList list = getActiveById(listId);
         Product product = productService.getActiveById(productId);
         Set<Product> productSet = list.getProducts();
@@ -121,7 +121,7 @@ public class ProductListService {
         return new AppResponse(String.format("Продукт id=%d добавлен в список id=%d", productId, listId));
     }
 
-    public AppResponse removeProduct(Long listId, Long productId) throws NotFoundException, BadRequestException {
+    public AppResponse removeProduct(Long listId, Long productId) {
         ProductList productList = getById(listId);
         Product product = productService.getById(productId);
         Set<Product> products = productList.getProducts();
@@ -133,26 +133,26 @@ public class ProductListService {
 
     }
 
-    private ProductList getById(Long id) throws NotFoundException {
+    private ProductList getById(Long id) {
         return productListRepo.findById(id).orElseThrow(() -> new NotFoundException("Список продуктов", id));
     }
 
-    private ProductList getActiveById(Long id) throws NotFoundException {
+    private ProductList getActiveById(Long id) {
         return productListRepo.findByIdAndStatus(id, ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Список продуктов", id));
     }
 
-    private ProductList create(ProductListDto request) throws BadRequestException {
+    private ProductList create(ProductListDto request) {
         ProductList productList = new ProductList();
         update(productList, request);
         return productList;
     }
 
-    private void update(ProductList productList, ProductListDto request) throws BadRequestException {
+    private void update(ProductList productList, ProductListDto request) {
         if (request.getName() != null) updateName(productList, request.getName());
     }
 
-    private void updateName(ProductList productList, String name) throws BadRequestException {
+    private void updateName(ProductList productList, String name) {
         throwExceptionIfNameAlreadyExists(name);
         if (name.length() > nameLengthLimit)
             throw new BadRequestException(
@@ -161,7 +161,7 @@ public class ProductListService {
         productList.setName(name);
     }
 
-    private void throwExceptionIfNameAlreadyExists(String name) throws BadRequestException {
+    private void throwExceptionIfNameAlreadyExists(String name) {
         if (productListRepo.existsByNameAndStatus(name, ACTIVE))
             throw new BadRequestException(String.format("Список с именем:'%s' уже существует", name));
     }

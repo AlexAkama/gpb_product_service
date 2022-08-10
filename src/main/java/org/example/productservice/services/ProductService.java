@@ -38,12 +38,12 @@ public class ProductService {
     @Value("${limit.product.description.length}")
     private int descriptionLengthLimit;
 
-    public ProductDto getProduct(Long id) throws NotFoundException {
+    public ProductDto getProduct(Long id) {
         Product product = getActiveById(id);
         return new ProductDto(product);
     }
 
-    public ProductDto addProduct(ProductDto request) throws BadRequestException {
+    public ProductDto addProduct(ProductDto request) {
         if (request.getName() == null
                 || request.getName().isBlank()) throw new BadRequestException("Не указано имя продукта");
         Product product = create(request);
@@ -51,7 +51,7 @@ public class ProductService {
         return new ProductDto(product);
     }
 
-    public ProductDto updateProduct(ProductDto request) throws BadRequestException, NotFoundException {
+    public ProductDto updateProduct(ProductDto request) {
         if (request.getId() == 0) throw new BadRequestException("Не указан id продукта");
         Product product = getById(request.getId());
         update(product, request);
@@ -59,7 +59,7 @@ public class ProductService {
         return new ProductDto(product);
     }
 
-    public DeleteResponse deleteProduct(Long productId) throws NotFoundException, BadRequestException {
+    public DeleteResponse deleteProduct(Long productId) {
         Product product = getById(productId);
         if (product.getStatus() == REMOVED)
             throw new BadRequestException(String.format("Продукт id=%d уже удален", productId));
@@ -87,29 +87,29 @@ public class ProductService {
         return PageableResponse.create(total, pair.getPage(), pair.getSize(), list);
     }
 
-    public Product getById(Long id) throws NotFoundException {
+    public Product getById(Long id) {
         return productRepo.findById(id)
                 .orElseThrow(() -> new NotFoundException("Продукт", id));
     }
 
-    public Product getActiveById(Long id) throws NotFoundException {
+    public Product getActiveById(Long id) {
         return productRepo.findByIdAndStatus(id, ACTIVE)
                 .orElseThrow(() -> new NotFoundException("Продукт", id));
     }
 
-    private Product create(ProductDto request) throws BadRequestException {
+    private Product create(ProductDto request) {
         Product product = new Product();
         update(product, request);
         return product;
     }
 
-    private void update(Product product, ProductDto request) throws BadRequestException {
+    private void update(Product product, ProductDto request) {
         if (request.getName() != null) updateName(product, request.getName());
         if (request.getDescription() != null) updateDescription(product, request.getDescription());
         if (request.getKilocalories() != null) updateKilocalories(product, request.getKilocalories());
     }
 
-    private void updateName(Product product, String name) throws BadRequestException {
+    private void updateName(Product product, String name) {
         throwExceptionIfNameAlreadyExists(name);
         if (name.length() > nameLengthLimit)
             throw new BadRequestException(
@@ -118,7 +118,7 @@ public class ProductService {
         product.setName(name);
     }
 
-    private void updateDescription(Product product, String description) throws BadRequestException {
+    private void updateDescription(Product product, String description) {
         if (description.length() > descriptionLengthLimit)
             throw new BadRequestException(
                     String.format("Превышен лимит длинны описания (Ограничение=%d)", descriptionLengthLimit)
@@ -126,12 +126,12 @@ public class ProductService {
         product.setDescription(description);
     }
 
-    private void updateKilocalories(Product product, Integer kcal) throws BadRequestException {
+    private void updateKilocalories(Product product, Integer kcal) {
         if (kcal < -1) throw new BadRequestException("Количество килокалорий должно быть положительным");
         product.setKilocalories(kcal);
     }
 
-    private void throwExceptionIfNameAlreadyExists(String name) throws BadRequestException {
+    private void throwExceptionIfNameAlreadyExists(String name) {
         if (productRepo.existsByNameAndStatus(name, ACTIVE))
             throw new BadRequestException(String.format("Продукт с именем:%s уже существует", name));
     }

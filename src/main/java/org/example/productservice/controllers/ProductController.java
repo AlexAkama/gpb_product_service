@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.productservice.dto.DeleteResponse;
 import org.example.productservice.dto.PageableResponse;
 import org.example.productservice.dto.ProductDto;
-import org.example.productservice.exceptions.BadRequestException;
-import org.example.productservice.exceptions.NotFoundException;
 import org.example.productservice.services.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -41,7 +39,7 @@ public class ProductController {
     public ResponseEntity<ProductDto> getProduct(
             @Parameter(description = "Идентификатор продукта (id)")
             @PathVariable Long id
-    ) throws NotFoundException {
+    ) {
         return ResponseEntity.ok(productService.getProduct(id));
     }
 
@@ -54,7 +52,7 @@ public class ProductController {
     @PostMapping()
     public ResponseEntity<ProductDto> addProduct(
             @RequestBody ProductDto request
-    ) throws BadRequestException {
+    ) {
         return ResponseEntity.ok(productService.addProduct(request));
     }
 
@@ -68,7 +66,7 @@ public class ProductController {
     @PutMapping()
     public ResponseEntity<ProductDto> updateProduct(
             @RequestBody ProductDto request
-    ) throws BadRequestException, NotFoundException {
+    ) {
         return ResponseEntity.ok(productService.updateProduct(request));
     }
 
@@ -82,7 +80,7 @@ public class ProductController {
     public ResponseEntity<DeleteResponse> deleteProduct(
             @Parameter(description = "Идентификатор продукта (id)")
             @PathVariable Long id
-    ) throws NotFoundException, BadRequestException {
+    ) {
         return ResponseEntity.ok(productService.deleteProduct(id));
     }
 
