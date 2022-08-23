@@ -35,14 +35,26 @@ public class ProductService {
     @Value("${limit.product.name.length}")
     private int nameLengthLimit;
 
+     /**
+      * В параметры есть смысл выносить значения, которые мы хотим менять без внесения изменений в код.
+      * В данном случае этот принцип нарушен - аналогичные значения захардкожены в SQL скриптах.
+      */
     @Value("${limit.product.description.length}")
     private int descriptionLengthLimit;
 
+    /**
+     *  Для маппинга DTO в Entity и обратно лучше использовать отдельный класс Mapper,
+     *  либо еще лучше библиотеку Mapstruct - https://www.baeldung.com/mapstruct
+     */
     public ProductDto getProduct(Long id) {
         Product product = getActiveById(id);
         return new ProductDto(product);
     }
 
+    /** 
+     * Валидацию лучше выносить в отдельный класс Validator, либо делать на уровне DTO. 
+     * Например - https://code4fun.ru/programming/spring-boot-dto-validation.html
+     */
     public ProductDto addProduct(ProductDto request) {
         if (request.getName() == null
                 || request.getName().isBlank()) throw new BadRequestException("Не указано имя продукта");
@@ -51,6 +63,15 @@ public class ProductService {
         return new ProductDto(product);
     }
 
+    
+    /**
+     * 1. Слишком сложный алгоритм обновления. Что если в Product будет не 3 поля, а 300?
+     *    Придется добавлять по методу на обновление каждого поля?
+     *    Намного удобнее это можно решить с помощью Mapstruct - https://www.baeldung.com/spring-data-partial-update
+     * 2. По философии HTTP, PUT подразумевает передачу и обновление всех полей в сущности.
+     *    Если в каком-то поле DTO, переданном в PUT запросе передан null, значит нужно сбросить поле в null.
+     *    Если мы хотим обновлять только not null поля, то корректнее использовать PATCH.
+     */
     public ProductDto updateProduct(ProductDto request) {
         if (request.getId() == 0) throw new BadRequestException("Не указан id продукта");
         Product product = getById(request.getId());
